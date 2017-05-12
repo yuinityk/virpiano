@@ -79,7 +79,7 @@ def recognize_keys(img):
                 print(c)
                 print(keys)
     if len(keys) < 2:
-        return img_color
+        return img_color,[]
     label = two_means(keys)
 
     for i in range(len(keys)):
@@ -91,9 +91,19 @@ def recognize_keys(img):
         cv2.drawContours(img_color, [c], -1, rainbow[count%7],3)
         count+=1
 
+    cv2.imwrite('fad.png',img_color)
     if len(keys) < 18:
-        return [[keys[i], i] for i in range(len(keys))]
+        return img_color, [[keys[i], i] for i in range(len(keys))]
     else:
-        return [[keys[i], i-12] for i in range(len(keys))]
+        return img_color, [[keys[i], i-12] for i in range(len(keys))]
 
-
+if __name__ == '__main__':
+    capture = cv2.VideoCapture(1)
+    while cv2.waitKey(30)<0:
+        ret, frame = capture.read()
+#img_color, key_freq = recognize_keys(frame)
+        keyret = recognize_keys(frame)
+        img_color = keyret[0]
+        print(len(keyret[1]))
+        cv2.imshow('red',img_color)
+    capture.release()
