@@ -71,6 +71,8 @@ def finger_tip_horizontal(contour):
 
 def finger_tip_from_birdview(contour):
     ans = []
+    if isinstance(contour, type(None)):
+        return []
     for i in range(len(contour)-2):
         v0=(contour[i+1][0]-contour[i][0])/np.linalg.norm(contour[i+1][0]-contour[i][0])
         v1=(contour[i+2][0]-contour[i+1][0])/np.linalg.norm(contour[i+2][0]-contour[i+1][0])
