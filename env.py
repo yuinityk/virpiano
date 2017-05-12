@@ -3,6 +3,7 @@ import wave
 import struct
 import numpy as np
 from pylab import *
+import pyaudio
 
 def createCombinedWave (A, freqList, fs, length):
     # freqListの正弦波を合成した波を返す
@@ -68,7 +69,6 @@ def createTriangleWave (A, f0, fs, length):
     return data
 
 def play (data, fs, bit):
-    import pyaudio
     # ストリームを開く
     p = pyaudio.PyAudio()
     stream = p.open(format=pyaudio.paInt16,
