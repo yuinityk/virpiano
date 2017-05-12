@@ -9,9 +9,13 @@ def n_resize(im,n): #resize im to 1/n scale
     return half_size
 
 def two_means(clusters):
+    if len(clusters) < 2:
+        return np.zeros(len(clusters))
     label = np.random.rand(len(clusters))
     label *= 2
     label = np.floor(label)
+    label[0] = 0
+    label[1] = 1
     areas = [cv2.contourArea(clusters[j]) for j in range(len(clusters))]
     for i in range(10):
         sum_zero = 0.
@@ -36,7 +40,6 @@ def two_means(clusters):
 def recognize_keys(img):
     img_color = img
     img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-
 
     '''
     しきい値の適性検査→70がいいっぽい
@@ -75,9 +78,9 @@ def recognize_keys(img):
             except ValueError:
                 print(c)
                 print(keys)
-
+    if len(keys) < 2:
+        return img_color
     label = two_means(keys)
-    #print(label)
 
     for i in range(len(keys)):
         cv2.fillPoly(img_color, pts=[keys[i]], color=(255*label[i],255*label[i],255*label[i]))
@@ -85,11 +88,12 @@ def recognize_keys(img):
 
     count = 0
     for c in keys:
-#print(cv2.contourArea(c))
         cv2.drawContours(img_color, [c], -1, rainbow[count%7],3)
         count+=1
 
-    
-    return img_color
+    if len(keys) < 18:
+        return [[keys[i], i] for i in range(len(keys))]
+    else:
+        return [[keys[i], i-12] for i in range(len(keys))]
 
 
