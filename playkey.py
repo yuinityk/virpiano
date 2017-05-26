@@ -33,8 +33,6 @@ if __name__ == '__main__':
                     point = ans[i][0]
                     if cv2.pointPolygonTest(cnt,tuple(point),False) == 1:
                         fing[i] = j+1
-# print(str(i+1)+'th finger is in ' + str(j+1)+'th key')
-#print(ans[i])
             print(fing)
             cv2.drawContours(frame_b,ans,-1,(0,0,255),3)
             for i in range(len(keyfreq)):
@@ -44,15 +42,3 @@ if __name__ == '__main__':
             capture.release()
             print('sys exit')
 
-
-    '''
-            for i in range(len(ans)):
-                for j in range(len(keyfreq)):
-                    cnt = keyfreq[j][0]
-                    point = ans[i]
-                    if cv2.pointPolygonTest(cnt,point,False) == 1:
-                        print(str(i+1)+'th finger is in ' +str(j)+'th key')
-                cv2.drawContours(frame_b,ans[i])
-#cv2.imwrite('fad.png',img_color)
-            cv2.imshow('key',frame_b)
-            '''

@@ -20,7 +20,7 @@ def find_largest_contour_of_red(img):
     h = hsv[:,:,0]
     s = hsv[:,:,1]
     mask = np.zeros(h.shape, dtype=np.uint8)
-    mask[((h<20)|(h>200))&(s>20)]=255
+    mask[((h<30)|(h>190))&(s>10)]=255
     contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     if len(contours)==0:
         return None
@@ -35,16 +35,24 @@ def find_largest_contour_of_red(img):
             c[1] = contour
     return c
 
+def fingertip(contour):
+    points = c[0][::50]
+    print(points)
+
 if __name__ == "__main__":
     capture = cv2.VideoCapture(1)
+    k = 0
     while cv2.waitKey(30)<0:
         ret, frame = capture.read()
         c = find_largest_contour_of_red(frame)
         if not isinstance(c,type(None)):
-            cv2.drawContours(frame,[c[0]],-1,(0,0,255),3)
-            cv2.drawContours(frame,[c[1]],-1,(0,0,255),3)
+            cv2.drawContours(frame,c[0][::50],-1,(0,0,255),3)
+#cv2.drawContours(frame,[c[1]],-1,(0,0,255),3)
         else:
             print('none')
         cv2.imshow('red',frame)
+        if k == 50:
+            print(type(c[0][::50][0]))
+        k += 1
     capture.release()
     cv2.destroyAllWindows()

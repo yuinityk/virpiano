@@ -6,10 +6,8 @@ import struct
 import numpy as np
 import cv2
 import recogKeyboard
-import getred
 import pyaudio
 import ground
-#import vertex
 
 rainbow = [(255,0,0),(255,165,0),(255,255,0),(0,128,0),(0,255,255),(0,0,255),(128,0,128)]
 
