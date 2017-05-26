@@ -5,7 +5,7 @@ https://sites.google.com/site/lifeslash7830/home/hua-xiang-chu-li/opencvniyoruhu
 import time
 import numpy as np
 import cv2
-import grayscale
+import recogKeyboard
 import getred
 
 
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     print('initiating...')
 #-----initiating-----
     ret, frame_b = cap_birdsview.read()
-    key_freq = grayscale.recognize_keys(frame_b)
+    key_freq = recogKeyboard.recognize_keys(frame_b)
     print('initiation finished')
 
     while(True):
