@@ -50,18 +50,18 @@ def recognize_keys(img):
 
     ret, thresh = cv2.threshold(img,70,255,cv2.THRESH_BINARY)
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    #thresh = cv2.drawContours(img, contours, -1, (0,255,0),3)
-    #cv2.imwrite('contour.png',img)
 
     rainbow = [(255,0,0),(255,165,0),(255,255,0),(0,128,0),(0,255,255),(0,0,255),(128,0,128)]
     keys = []
     maxc = []
     for c in contours:
-        if cv2.contourArea(c) < 90:
+        if cv2.contourArea(c) < 800: # 小さい雑多なものは弾く
             continue
-        if cv2.contourArea(c) > img_color.size/5:
+        
+        if cv2.contourArea(c) > img_color.size/3.1:
             continue
-        epsilon = 0.005*cv2.arcLength(c, True)
+        
+        epsilon = 0.01*cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, epsilon, True)
         keys.append(approx)
         if len(maxc)<1:
@@ -71,7 +71,8 @@ def recognize_keys(img):
     for c in keys:
         epsilon = 0.005*cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, epsilon, True)
-        if cv2.contourArea(approx) == cv2.contourArea(maxc[0]):
+
+        if cv2.contourArea(approx) in [cv2.contourArea(maxc[0])]:
             try:
                 keys.remove(c)
                 break
@@ -84,7 +85,7 @@ def recognize_keys(img):
 
     for i in range(len(keys)):
         cv2.fillPoly(img_color, pts=[keys[i]], color=(255*label[i],255*label[i],255*label[i]))
-    keys = sorted(keys, key=lambda x: int(cv2.moments(x)['m10']/cv2.moments(x)['m00']))
+    keys = sorted(keys, key=lambda x: int(cv2.moments(x)['m10']/max(cv2.moments(x)['m00'],0.01)))
 
     count = 0
     for c in keys:
@@ -98,7 +99,7 @@ def recognize_keys(img):
         return img_color, [[keys[i], i-12] for i in range(len(keys))]
 
 if __name__ == '__main__':
-    capture = cv2.VideoCapture(1)
+    capture = cv2.VideoCapture(0)
     while cv2.waitKey(30)<0:
         ret, frame = capture.read()
 #img_color, key_freq = recognize_keys(frame)
