@@ -4,7 +4,7 @@ import cv2
 import sys
 import time
 import vertex
-import grayscale
+import recogKeyboard
 import ground
 
 if __name__ == '__main__':
@@ -12,7 +12,7 @@ if __name__ == '__main__':
     ret, frame_b = capture.read()
     time.sleep(3)
     print('initiating...')
-    img, keyfreq = grayscale.recognize_keys(frame_b)
+    img, keyfreq = recogKeyboard.recognize_keys(frame_b)
     if len(keyfreq)==0:
         print('initiation failed')
         sys.exit()

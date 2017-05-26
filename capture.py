@@ -6,7 +6,7 @@ import time
 import struct
 import numpy as np
 import cv2
-import grayscale
+import recogKeyboard
 import getred
 import pyaudio
 import ground
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     print('initiating...')
 #-----initiating-----
     ret, frame_b = cap_birdsview.read()
-    key_freq = grayscale.recognize_keys(frame_b)
+    key_freq = recogKeyboard.recognize_keys(frame_b)
     print('initiation finished')
 
     while(True):
