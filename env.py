@@ -28,10 +28,10 @@ def createCombinedDampingWave (A, freqList, fs, length):
     # freqListの正弦波を合成した波を返す
     data = []
     amp = float(A) / len(freqList)
+    d = 2.0 # damping factor
     # [-1.0, 1.0]の小数値が入った波を作成
     for n in arange(length * fs):  # nはサンプルインデックス
         s = 0.0
-        d = 2.0 # damping factor
         for f in freqList:
             sk = 0.0
             for k in range(0, 10):  # サンプルごとに10個のサイン波を重ね合わせ

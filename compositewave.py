@@ -2,17 +2,21 @@
 import wave
 import struct
 import numpy as np
+import pyaudio
+
 from pylab import *
 
 def createCombinedWave (A, freqList, fs, length):
     """freqListの正弦波を合成した波を返す"""
     data = []
     amp = float(A) / len(freqList)
+    d = 2.0 # damping factor
     # [-1.0, 1.0]の小数値が入った波を作成
     for n in arange(length * fs):  # nはサンプルインデックス
         s = 0.0
         for f in freqList:
             s += amp * np.sin(2 * np.pi * f * n / fs)
+            s = s * 2 * amp / (1 + np.exp(d * n / fs)) # 減衰
         # 振幅が大きい時はクリッピング
         if s > 1.0:  s = 1.0
         if s < -1.0: s = -1.0
@@ -24,7 +28,6 @@ def createCombinedWave (A, freqList, fs, length):
     return data
 
 def play (data, fs, bit):
-    import pyaudio
     # ストリームを開く
     p = pyaudio.PyAudio()
     stream = p.open(format=pyaudio.paInt16,
@@ -55,11 +58,12 @@ if __name__ == "__main__" :
                  #(494, 622, 740)  # B（シレ#ファ#）
     while(n<11):
     	m1=float(input())
-    	m2=float(input())
+#    	m2=float(input())
     	s1=262*(2**(m1/12.0))
-    	s2=262*(2**(m2/12.0))
-    	chordList = [(s1,s2)]
+#    	s2=262*(2**(m2/12.0))
+    	chordList = [(s1,)]
+#    	chordList = [(s1,s2)]
     	for freqList in chordList:
-    		data = createCombinedWave(1.0, freqList, 8000.0, 1.0)
+    		data = createCombinedWave(1.0, freqList, 8000.0, 0.5)
     		play(data, 8000, 16)
        	n=n+1 
