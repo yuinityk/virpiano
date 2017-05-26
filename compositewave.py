@@ -5,6 +5,7 @@ import numpy as np
 import pyaudio
 
 from pylab import *
+import pyaudio
 
 def createCombinedWave (A, freqList, fs, length):
     """freqListの正弦波を合成した波を返す"""
