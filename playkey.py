@@ -7,6 +7,8 @@ import vertex
 import recogKeyboard
 import ground
 
+rainbow = [(255,0,0),(255,165,0),(255,255,0),(0,128,0),(0,255,255),(0,0,255),(128,0,128)]
+
 if __name__ == '__main__':
     capture = cv2.VideoCapture(0)
     ret, frame_b = capture.read()
@@ -35,6 +37,8 @@ if __name__ == '__main__':
 #print(ans[i])
             print(fing)
             cv2.drawContours(frame_b,ans,-1,(0,0,255),3)
+            for i in range(len(keyfreq)):
+                cv2.drawContours(frame_b,[keyfreq[i][0]],-1,rainbow[i%7],3)
             cv2.imshow('key',frame_b)
     except KeyboardInterrupt:
             capture.release()
