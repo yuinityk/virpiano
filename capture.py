@@ -2,6 +2,7 @@
 """
 https://sites.google.com/site/lifeslash7830/home/hua-xiang-chu-li/opencvniyoruhuaxiangchulidonghuanoruchuli
 """
+import time
 import struct
 import numpy as np
 import cv2
@@ -22,9 +23,16 @@ def get_playkey(key_freq,fingers_b):
     return fing
 
 
-def get_horizontal_line():
-    return 260
-    raise NotImplementedError()
+def get_horizontal_line(frames_h):
+    thre = frames_h.shape[1] * 0.25
+    hsv = cv2.cvtColor(frames_h,cv2.COLOR_BGR2HSV_FULL)
+    h = hsv[:,:,0]
+    s = hsv[:,:,1]
+    v = hsv[:,:,2]
+    mask = np.zeros(h.shape, dtype=np.uint8)
+    mask[((h<20)|(h>200))&(s>80)&(v>50)]=255
+    hline = h.shape[0]-1-np.argmax((np.count_nonzero(mask,axis=1)>thre)[::-1])
+    return hline
 
 
 if __name__ == '__main__':
@@ -41,12 +49,14 @@ if __name__ == '__main__':
     cap_birdsview  = cv2.VideoCapture(0)
     cap_horizontal = cv2.VideoCapture(2)
     hline_y = get_horizontal_line()
-    print('initiating...')
-#-----initiating-----
+    print('Getting Keys...')
     ret, frame_b = cap_birdsview.read()
     key_freq = recogKeyboard.recognize_keys(frame_b)
-    print('initiation finished')
-
+    print('Getting Horizontal Line...')
+    time.sleep(1)
+    ret, frame_h = cap_horizontal.read()
+    hline = get_holizontal_line(frame_h)
+    print('Initialization finished')
     is_ground = np.array([0,0,0,0,0])
     sound = [[0,-1] for i in range(5)]
 
@@ -64,7 +74,7 @@ if __name__ == '__main__':
             fingers_b = ground.finger_tip_from_birdview(hands_b[0][::20])
             cv2.drawContours(frame_b,fingers_b,-1,(0,0,255),3)
             is_ground_old = is_ground
-            is_ground = ground.isGround(fingers_h,hline_y)
+            is_ground = ground.isGround(fingers_h,hline)
             sound_old = sound
             sound = [[0,-1] for i in range(5)]
             if np.any(is_ground - is_ground_old != 0):
