@@ -3,7 +3,6 @@ import numpy as np
 import cv2
 import sys
 import time
-import vertex
 import recogKeyboard
 import ground
 
@@ -14,7 +13,10 @@ if __name__ == '__main__':
     ret, frame_b = capture.read()
     time.sleep(3)
     print('initiating...')
-    img, keyfreq = recogKeyboard.recognize_keys(frame_b)
+    while cv2.waitKey(30)<0:
+        _,frame_b = capture.read()
+        img, keyfreq = recogKeyboard.recognize_keys(frame_b)
+        cv2.imshow('keys',img)
     if len(keyfreq)==0:
         print('initiation failed')
         sys.exit()
@@ -26,6 +28,7 @@ if __name__ == '__main__':
             ret, frame_b = capture.read()
             hands_b = ground.find_largest_contour_of_red(frame_b)
             ans = ground.finger_tip_from_birdview(hands_b[0][::20])
+            print(ans)
             fing = [0,0,0,0,0]
             for i in range(len(ans)):
                 for j in range(len(keyfreq)):
