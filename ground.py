@@ -122,6 +122,7 @@ def isGround(contour,value):
         for i in range(5):
             if(contour[i][0][1]>=value):
                 a[i] = 1
+    print 'is_ground:',
     print a 
     return a
 
