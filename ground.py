@@ -50,7 +50,7 @@ def finger_tip_horizontal(contour):
                 if ans[j][1] > dot:
                     for k in range(5):
                         if abs(ans[k][0][0]-contour[i+1][0][0])<=60:
-                            if ans[k][0][1] < contour[i+1][0][1]:
+                            if ans[k][1] > dot:
                                ans[k] = [contour[i+1][0],dot]
                             flag =1
                             ans.sort(key=lambda x:x[1])

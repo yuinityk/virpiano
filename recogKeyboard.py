@@ -77,7 +77,7 @@ def recognize_keys(img):
         cv2.drawContours(img_color, [c], -1, rainbow[count%7],3)
         count+=1
 
-    cv2.imwrite('fad.png',img_color)
+    #cv2.imwrite('fad.png',img_color)
     if len(keys) < 18:
         return img_color, [[keys[i], i] for i in range(len(keys))]
     else:
