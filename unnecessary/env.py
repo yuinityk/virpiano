@@ -27,26 +27,19 @@ def createCombinedWave (A, freqList, fs, length):
 
 def createCombinedDampingWave (A, freqList, fs, length):
     # freqListの正弦波を合成した波を返す
-    data = []
     amp = float(A) / len(freqList)
     # [-1.0, 1.0]の小数値が入った波を作成
-    for n in arange(length * fs):  # nはサンプルインデックス
-        s = 0.0
-        d = 2.0 # damping factor
-        for f in freqList:
-            sk = 0.0
-            for k in range(0, 10):  # サンプルごとに10個のサイン波を重ね合わせ
-                sk += (-1)**k * (1 / (2*k+1)**2) * np.sin((2*k+1) * 2 * np.pi * f * n / fs)
-            s += sk
-#        s = s * np.exp(-n / fs) # 減衰
-        s = s * 2 * amp / (1 + np.exp(d * n / fs)) # 減衰
-        # 振幅が大きい時はクリッピング
-        if s > 1.0:  s = 1.0
-        if s < -1.0: s = -1.0
-        data.append(s)
-    # [-32768, 32767]の整数値に変換
-    data = [int(x * 32767.0) for x in data]
-    # バイナリに変換
+    data = np.zeros(int(length * fs))
+    d = 2.
+    for f in freqList:
+        for k in range(0,10):
+            th = 2*(2*k+1)*np.pi*f/fs * np.arange(int(length*fs))
+            data += (-1)**k * (1/(2*k+1)**2) * np.sin(th)
+    data = data*2*amp / np.exp(d/fs *np.arange(int(length*fs)))
+    data[np.where(data>1.)[0]] = 1.
+    data[np.where(data<-1.)[0]] = -1.
+    data *= 32767.
+    data = data.astype(int)
     data = struct.pack("h" * len(data), *data)  # listに*をつけると引数展開される
     return data
 
@@ -110,7 +103,7 @@ if __name__ == "__main__" :
 #      chordList = [(s1,s2)]
 #      chordList = [(s1,s2,s3)]
       for freqList in chordList:
-    	  data = createCombinedDampingWave(2, freqList, 8000.0, 10.0)
+    	  data = createCombinedDampingWave(2, freqList, 8000.0, 5.0)
     	  play(data, 8000, 16)
       n=n+1
 
