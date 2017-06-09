@@ -11,7 +11,7 @@ import pyaudio
 import ground
 
 rainbow = [(255,0,0),(255,165,0),(255,255,0),(0,128,0),(0,255,255),(0,0,255),(128,0,128)]
-freqlist = [262*(2.0**(i/12.0)) for i in range(13)]
+freqlist = [523*(2.0**(i/12.0)) for i in range(13)]
 
 def get_playkey(key_freq,fingers_b):
     fing = [0,0,0,0,0]
@@ -48,21 +48,26 @@ if __name__ == '__main__':
             rate = int(fs),
             output = True)
 
-    cap_birdsview  = cv2.VideoCapture(0)
-    cap_horizontal = cv2.VideoCapture(1)
+    cap_birdsview  = cv2.VideoCapture(1)
+    cap_horizontal = cv2.VideoCapture(2)
     print('Getting Keys...')
     while cv2.waitKey(30)<0:
         ret, frame_b = cap_birdsview.read()
+        frame_b = cv2.flip(frame_b,-1)
         img,key_freq = recogKeyboard.recognize_keys(frame_b)
         cv2.imshow('keys',img)
+
+    cv2.destroyWindow('keys')
 
     print('Getting Horizontal Line...')
     while cv2.waitKey(30)<0:
         ret, frame_h = cap_horizontal.read()
         hline = get_horizontal_line(frame_h)
         cv2.line(frame_h,(0,hline),(frame_h.shape[1],hline),(0,255,0),3)
-        cv2.imshow('horizontal',frame_h)
+        cv2.imshow(str(len(key_freq)),frame_h)
     print('Initialization finished')
+
+    cv2.destroyWindow('horizontal')
 
     is_ground = np.array([0,0,0,0,0])
     sound = [[0,-1] for i in range(5)]
@@ -71,6 +76,7 @@ if __name__ == '__main__':
     while(True):
         ret, frame_b = cap_birdsview.read()
         ret, frame_h = cap_horizontal.read()
+        frame_b = cv2.flip(frame_b,-1)
         t_now = time.time()
 
         if t_now-t>ts:
@@ -90,6 +96,7 @@ if __name__ == '__main__':
                 is_ground = ground.isGround(fingers_h,hline)
                 sound_old = sound
                 sound = [[0,-1] for i in range(5)]
+                playkey = [0,0,0,0,0]
                 if np.any(is_ground - is_ground_old != 0):
                     playkey = get_playkey(key_freq,fingers_b) #fingersの内,接地している指の位置ベクトルの配列を引数として渡す
                     for i in range(5):
@@ -101,6 +108,8 @@ if __name__ == '__main__':
                 else:
                      for i in range(5):
                          sound[i][1] += sound_old[i][1]+1
+                print 'playkey: ',
+                print(playkey)
 
                 # create dumping wave with length fda;oewigrewao
                 data = np.zeros(int(fs*ts))
@@ -108,8 +117,8 @@ if __name__ == '__main__':
                     amp = float(A) / len(np.where(is_ground == 1)[0])
                     data = np.zeros(int(fs*ts))
                     for j in range(5):
-                        f = freqlist[sound[j][0]]
-                        if sound[j][1] != -1:
+                        f = freqlist[sound[j][0]-1]
+                        if sound[j][1] != -1 and sound[j][0] != 0:
                             tmp = 2*np.pi*f*np.arange(int(fs*ts))
                             tmp /= fs
                             data += 2 * amp * np.sin(tmp) / (1+np.exp(2.*np.arange(int(fs*ts))/fs))
@@ -121,14 +130,20 @@ if __name__ == '__main__':
                 data = struct.pack("h"*data.shape[0], *data)
                 stream.write(data)
 
+        c = ground.find_largest_contour_of_red(frame_h)
+        if not isinstance(c,type(None)):
+            hull = c[0][::20]
+            fingers = ground.finger_tip_horizontal(hull)
+            cv2.drawContours(frame_h,[c[0]],-1,(0,255,0),3)
+            cv2.drawContours(frame_h,fingers,-1,(0,0,255),3)
 
-        for f in [frame_b,frame_h]:
-            c = ground.find_largest_contour_of_red(f)
-            if not isinstance(c,type(None)):
-                hull = c[0][::20]
-                fingers = ground.finger_tip_horizontal(hull)
-                cv2.drawContours(f,[c[0]],-1,(0,255,0),3)
-                cv2.drawContours(f,fingers,-1,(0,0,255),3)
+        c = ground.find_largest_contour_of_red(frame_b)
+        if not isinstance(c,type(None)):
+            hull = c[0][::20]
+            fingers = ground.finger_tip_from_birdview(hull)
+            cv2.drawContours(frame_b,[c[0]],-1,(0,255,0),3)
+            cv2.drawContours(frame_b,fingers,-1,(0,0,255),3)
+
 
         for i, [k,_] in enumerate(key_freq):
             cv2.drawContours(frame_b, [k], -1, rainbow[i%7],3)
