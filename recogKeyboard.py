@@ -84,9 +84,10 @@ def recognize_keys(img):
         return img_color, [[keys[i], i-12] for i in range(len(keys))]
 
 if __name__ == '__main__':
-    capture = cv2.VideoCapture(0)
+    capture = cv2.VideoCapture(1)
     while cv2.waitKey(30)<0:
         ret, frame = capture.read()
+        frame = cv2.flip(frame,-1)
         keyret = recognize_keys(frame)
         img_color = keyret[0]
         print(len(keyret[1]))
